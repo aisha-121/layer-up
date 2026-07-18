@@ -1,21 +1,90 @@
-import { Button } from "@/components/ui/button"
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { LandingPage } from "@/components/app/landing/landing-page";
+import { LoginPage } from "@/components/app/auth/login-page";
+import { RegisterPage } from "@/components/app/auth/register-page";
+import { OnboardingFlow } from "@/components/app/onboarding/onboarding-flow";
+import { AppLayout } from "@/components/app/layout";
+import { DashboardPage } from "@/components/app/dashboard/page";
+import { WardrobePage } from "@/components/app/wardrobe/page";
+import { OOTDPage } from "@/components/app/ootd/ootd-page";
+import { SavedOutfitsPage } from "@/components/app/outfits/saved-fits";
+import { SettingsPage } from "@/components/app/settings/settings";
 
 export function App() {
   return (
-    <div className="flex min-h-svh p-6">
-      <div className="flex max-w-md min-w-0 flex-col gap-4 text-sm leading-loose">
-        <div>
-          <h1 className="font-medium">Project ready!</h1>
-          <p>You may now add components and start building.</p>
-          <p>We&apos;ve already added the button component for you.</p>
-          <Button className="mt-2">Button</Button>
-        </div>
-        <div className="font-mono text-xs text-muted-foreground">
-          (Press <kbd>d</kbd> to toggle dark mode)
-        </div>
-      </div>
-    </div>
-  )
+    <BrowserRouter>
+      <AuthProvider>
+        <TooltipProvider delayDuration={150}>
+          <AppRoutes />
+          <Toaster richColors position="top-center" />
+        </TooltipProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+function AppRoutes() {
+  const { email, profile, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="bg-background grid min-h-svh place-items-center">
+        <p className="text-muted-foreground text-sm">Loading…</p>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={email ? <Navigate to="/dashboard" replace /> : <LandingPage />}
+      />
+      <Route
+        path="/login"
+        element={email ? <Navigate to="/dashboard" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/register"
+        element={email ? <Navigate to="/dashboard" replace /> : <RegisterPage />}
+      />
+
+      <Route
+        path="/onboarding"
+        element={
+          !email ? (
+            <Navigate to="/register" replace />
+          ) : profile?.onboardingComplete ? (
+            <Navigate to="/dashboard" replace />
+          ) : (
+            <OnboardingFlow />
+          )
+        }
+      />
+
+      <Route
+        element={
+          !email ? (
+            <Navigate to="/login" replace />
+          ) : !profile?.onboardingComplete ? (
+            <Navigate to="/onboarding" replace />
+          ) : (
+            <AppLayout />
+          )
+        }
+      >
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/wardrobe" element={<WardrobePage />} />
+        <Route path="/ootd" element={<OOTDPage />} />
+        <Route path="/outfits" element={<SavedOutfitsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+export default App;
