@@ -209,11 +209,6 @@ The recommendation engine translates temperature into a target warmth level and 
 ### Media handling
 Wardrobe images and OOTD photos are stored in IndexedDB using generated IDs, which keeps image data outside localStorage and reduces storage-size issues.
 
-## Known State / Notes
-
-This project is a prototype-style app focused on UX and product flow rather than a production backend architecture. It currently uses browser-local persistence and direct API calls from the client, so it is best suited for demos, personal use, and rapid iteration.
-
-> The current TypeScript build shows a few type mismatches around the category/aesthetic metadata objects, so the app is still in active refinement before being treated as a fully green production build.
 
 ## Future Improvements
 
